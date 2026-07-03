@@ -35,6 +35,25 @@
     .limit-badge { display:inline-block; margin-left:8px; padding:2px 7px; border-radius:999px; font-size:11px; font-weight:800; vertical-align:middle; }
     .limit-up-badge { color:#ffd2d6; background:rgba(255,107,122,.22); border:1px solid rgba(255,107,122,.42); }
     .limit-down-badge { color:#c8ffd1; background:rgba(87,214,141,.20); border:1px solid rgba(87,214,141,.38); }
+    .trend-card { margin-bottom:18px; background:linear-gradient(135deg,rgba(17,28,48,.95),rgba(12,21,38,.95)); }
+    .trend-head { display:grid; grid-template-columns:1.2fr repeat(3,minmax(0,.8fr)); gap:12px; align-items:end; margin-bottom:14px; }
+    .trend-main strong { display:block; font-size:34px; line-height:1; margin-top:5px; }
+    .trend-stat { padding:11px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.045); }
+    .trend-stat strong { display:block; margin-top:5px; font-size:20px; }
+    .trend-charts { display:grid; grid-template-columns:1.25fr 1fr; gap:14px; }
+    .trend-panel { padding:12px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.04); }
+    .trend-panel-title { display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-size:13px; margin-bottom:8px; }
+    .trend-chart { width:100%; height:154px; display:block; overflow:visible; }
+    .trend-line { fill:none; stroke:#8cb7ff; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 0 8px rgba(140,183,255,.32)); }
+    .trend-area { fill:rgba(140,183,255,.12); }
+    .trend-zero { stroke:rgba(237,244,255,.32); stroke-width:1; stroke-dasharray:4 5; }
+    .trend-bar-up { fill:var(--pos); }
+    .trend-bar-down { fill:var(--neg); }
+    .trend-axis { fill:rgba(237,244,255,.58); font-size:10px; }
+    .trend-insight { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:12px; }
+    .trend-insight div { padding:10px; border:1px solid var(--line); border-radius:12px; background:rgba(255,255,255,.035); }
+    .trend-insight strong { display:block; margin-top:4px; }
+    @media (max-width:900px) { .trend-head,.trend-charts,.trend-insight { grid-template-columns:1fr; } }
     @media (max-width:900px) { .grid { grid-template-columns:repeat(2,1fr); } table { font-size:13px; } th:nth-child(4),td:nth-child(4),th:nth-child(6),td:nth-child(6){display:none;} }
   </style>
 </head>
@@ -51,6 +70,34 @@
     <div class="card"><div class="label">短期操作</div><div class="value">35.6%<span class="subline pos">+3,128 (+0.38%)</span></div></div>
     <div class="card"><div class="label">最大持股</div><div class="value">台積電</div></div>
     <div class="card"><div class="label">最大持股占比</div><div class="value">41.5%</div></div>
+  </section>
+  <section class="card trend-card" id="portfolio-trend">
+    <div class="label">持股趨勢</div>
+    <div class="trend-head">
+      <div class="trend-main">
+        <div class="label">目前總市值</div>
+        <strong id="trend-current-value">載入中</strong>
+        <div class="sub" id="trend-current-note">讀取每日紀錄...</div>
+      </div>
+      <div class="trend-stat"><div class="label">近 7 日影響</div><strong id="trend-7d">—</strong></div>
+      <div class="trend-stat"><div class="label">距歷史高點</div><strong id="trend-drawdown">—</strong></div>
+      <div class="trend-stat"><div class="label">平均日波動</div><strong id="trend-volatility">—</strong></div>
+    </div>
+    <div class="trend-charts">
+      <div class="trend-panel">
+        <div class="trend-panel-title"><span>總市值起伏</span><span id="trend-value-range">—</span></div>
+        <svg class="trend-chart" id="trend-value-chart" viewBox="0 0 420 154" role="img" aria-label="總市值折線圖"></svg>
+      </div>
+      <div class="trend-panel">
+        <div class="trend-panel-title"><span>每日差值造成的影響</span><span id="trend-change-range">—</span></div>
+        <svg class="trend-chart" id="trend-change-chart" viewBox="0 0 360 154" role="img" aria-label="每日估算漲跌柱狀圖"></svg>
+      </div>
+    </div>
+    <div class="trend-insight">
+      <div><span class="label">觀察期間</span><strong id="trend-period">—</strong></div>
+      <div><span class="label">累積變化</span><strong id="trend-total-change">—</strong></div>
+      <div><span class="label">最大單日影響</span><strong id="trend-biggest-day">—</strong></div>
+    </div>
   </section>
   <table id="holdings-table">
     <thead><tr>
@@ -271,6 +318,74 @@
   
 </main>
 <script>
+(function () {
+  const fallbackHistory = [
+    {date:'2026-06-17', dailyChange:18200, totalValue:2246800},
+    {date:'2026-06-18', dailyChange:-9600, totalValue:2237200},
+    {date:'2026-06-19', dailyChange:27600, totalValue:2264800},
+    {date:'2026-06-20', dailyChange:7400, totalValue:2272200},
+    {date:'2026-06-21', dailyChange:-11800, totalValue:2260400},
+    {date:'2026-06-22', dailyChange:42800, totalValue:2303200},
+    {date:'2026-06-23', dailyChange:-15100, totalValue:2288100},
+    {date:'2026-06-24', dailyChange:17790, totalValue:2305890},
+    {date:'2026-06-25', dailyChange:13005, totalValue:2318895},
+    {date:'2026-07-03', dailyChange:roundTrendValue(-15490.72000000001), totalValue:roundTrendValue(2338380.08)}
+  ];
+  function roundTrendValue(v) { return Math.round(Number(v) || 0); }
+  function money(n) { const v = Number(n) || 0; return `${v < 0 ? '-' : ''}${Math.abs(Math.round(v)).toLocaleString('zh-TW')}`; }
+  function signedMoney(n) { const v = Number(n) || 0; return `${v >= 0 ? '+' : '-'}${Math.abs(Math.round(v)).toLocaleString('zh-TW')}`; }
+  function trendClass(n) { return Number(n) >= 0 ? 'pos' : 'neg'; }
+  function setTrendText(id, text, cls) {
+    const el = document.getElementById(id); if (!el) return;
+    el.textContent = text; el.classList.remove('pos','neg'); if (cls) el.classList.add(cls);
+  }
+  function linePoints(values, width, height, pad) {
+    const min = Math.min(...values), max = Math.max(...values), span = Math.max(1, max - min);
+    return values.map((v,i) => [pad + (values.length === 1 ? 0 : i * ((width - pad * 2) / (values.length - 1))), height - pad - ((v - min) / span) * (height - pad * 2)]);
+  }
+  function renderValueChart(rows) {
+    const svg = document.getElementById('trend-value-chart'); if (!svg) return;
+    const width = 420, height = 154, pad = 16, values = rows.map(r => Number(r.totalValue));
+    const pts = linePoints(values, width, height, pad), line = pts.map(p => p.join(',')).join(' ');
+    const min = Math.min(...values), max = Math.max(...values);
+    svg.innerHTML = `<polygon class="trend-area" points="${pad},${height-pad} ${line} ${width-pad},${height-pad}"></polygon><polyline class="trend-line" points="${line}"></polyline><text class="trend-axis" x="${pad}" y="12">${money(max)}</text><text class="trend-axis" x="${pad}" y="150">${money(min)}</text>`;
+    setTrendText('trend-value-range', `${money(min)} → ${money(max)}`);
+  }
+  function renderChangeChart(rows) {
+    const svg = document.getElementById('trend-change-chart'); if (!svg) return;
+    const width = 360, height = 154, pad = 16, changes = rows.map(r => Number(r.dailyChange));
+    const maxAbs = Math.max(1, ...changes.map(v => Math.abs(v))), zeroY = height / 2, gap = 4;
+    const barW = Math.max(5, (width - pad * 2) / changes.length - gap);
+    const bars = changes.map((v,i) => {
+      const x = pad + i * ((width - pad * 2) / changes.length) + gap / 2;
+      const h = Math.max(2, Math.abs(v) / maxAbs * (height / 2 - pad));
+      const y = v >= 0 ? zeroY - h : zeroY;
+      return `<rect class="${v >= 0 ? 'trend-bar-up' : 'trend-bar-down'}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="2"></rect>`;
+    }).join('');
+    svg.innerHTML = `<line class="trend-zero" x1="${pad}" y1="${zeroY}" x2="${width-pad}" y2="${zeroY}"></line>${bars}<text class="trend-axis" x="${pad}" y="12">+${money(maxAbs)}</text><text class="trend-axis" x="${pad}" y="150">-${money(maxAbs)}</text>`;
+    setTrendText('trend-change-range', `±${money(maxAbs)}`);
+  }
+  function renderTrend(rows) {
+    const clean = rows.map(r => ({date:r.date, dailyChange:Number(r.dailyChange), totalValue:Number(r.totalValue)})).filter(r => r.date && Number.isFinite(r.dailyChange) && Number.isFinite(r.totalValue)).sort((a,b) => String(a.date).localeCompare(String(b.date))).slice(-30);
+    if (!clean.length) return;
+    const latest = clean[clean.length - 1], first = clean[0], sum7 = clean.slice(-7).reduce((s,r) => s + r.dailyChange, 0);
+    const high = Math.max(...clean.map(r => r.totalValue)), drawdown = latest.totalValue - high;
+    const avgAbs = clean.reduce((s,r) => s + Math.abs(r.dailyChange), 0) / clean.length;
+    const totalChange = latest.totalValue - first.totalValue;
+    const biggest = clean.reduce((best,r) => Math.abs(r.dailyChange) > Math.abs(best.dailyChange) ? r : best, clean[0]);
+    setTrendText('trend-current-value', `NT$ ${money(latest.totalValue)}`);
+    setTrendText('trend-current-note', `${latest.date} · 當日影響 ${signedMoney(latest.dailyChange)}`, trendClass(latest.dailyChange));
+    setTrendText('trend-7d', signedMoney(sum7), trendClass(sum7));
+    setTrendText('trend-drawdown', drawdown === 0 ? '高點附近' : signedMoney(drawdown), trendClass(drawdown));
+    setTrendText('trend-volatility', `±${money(avgAbs)}`);
+    setTrendText('trend-period', `${first.date} → ${latest.date}`);
+    setTrendText('trend-total-change', signedMoney(totalChange), trendClass(totalChange));
+    setTrendText('trend-biggest-day', `${biggest.date} ${signedMoney(biggest.dailyChange)}`, trendClass(biggest.dailyChange));
+    renderValueChart(clean); renderChangeChart(clean);
+  }
+  fetch('./portfolio-history.json', {cache:'no-store'}).then(r => r.ok ? r.json() : Promise.reject(r.status)).then(renderTrend).catch(() => renderTrend(fallbackHistory));
+})();
+
 (function () {
   const table = document.getElementById('holdings-table');
   if (!table) return;
