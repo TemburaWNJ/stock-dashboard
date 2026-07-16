@@ -46,7 +46,52 @@
   },
   {
     "date": "2026-07-03",
-    "dailyChange": -20779,
-    "totalValue": 2333092
+    "dailyChange": -15796,
+    "totalValue": 2338074
+  },
+  {
+    "date": "2026-07-06",
+    "dailyChange": -4960,
+    "totalValue": 2339359
+  },
+  {
+    "date": "2026-07-07",
+    "dailyChange": -61576,
+    "totalValue": 2275082
+  },
+  {
+    "date": "2026-07-08",
+    "dailyChange": 22995,
+    "totalValue": 2295436
+  },
+  {
+    "date": "2026-07-09",
+    "dailyChange": 3113,
+    "totalValue": 2285225
+  },
+  {
+    "date": "2026-07-10",
+    "dailyChange": -12647,
+    "totalValue": 2269466
+  },
+  {
+    "date": "2026-07-13",
+    "dailyChange": -25847,
+    "totalValue": 2243618
+  },
+  {
+    "date": "2026-07-14",
+    "dailyChange": -43159,
+    "totalValue": 2078131
+  },
+  {
+    "date": "2026-07-15",
+    "dailyChange": 39407,
+    "totalValue": 2127203
+  },
+  {
+    "date": "2026-07-16",
+    "dailyChange": -135,
+    "totalValue": 2124585
   }
 ]
