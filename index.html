@@ -319,18 +319,7 @@
 </main>
 <script>
 (function () {
-  const fallbackHistory = [
-    {date:'2026-06-17', dailyChange:18200, totalValue:2246800},
-    {date:'2026-06-18', dailyChange:-9600, totalValue:2237200},
-    {date:'2026-06-19', dailyChange:27600, totalValue:2264800},
-    {date:'2026-06-20', dailyChange:7400, totalValue:2272200},
-    {date:'2026-06-21', dailyChange:-11800, totalValue:2260400},
-    {date:'2026-06-22', dailyChange:42800, totalValue:2303200},
-    {date:'2026-06-23', dailyChange:-15100, totalValue:2288100},
-    {date:'2026-06-24', dailyChange:17790, totalValue:2305890},
-    {date:'2026-06-25', dailyChange:13005, totalValue:2318895},
-    {date:'2026-07-03', dailyChange:roundTrendValue(-135.03999999997995), totalValue:roundTrendValue(2124584.54)}
-  ];
+  const fallbackHistory = [{"date": "2026-06-17", "dailyChange": 18200, "totalValue": 2246800}, {"date": "2026-06-18", "dailyChange": -9600, "totalValue": 2237200}, {"date": "2026-06-19", "dailyChange": 27600, "totalValue": 2264800}, {"date": "2026-06-20", "dailyChange": 7400, "totalValue": 2272200}, {"date": "2026-06-21", "dailyChange": -11800, "totalValue": 2260400}, {"date": "2026-06-22", "dailyChange": 42800, "totalValue": 2303200}, {"date": "2026-06-23", "dailyChange": -15100, "totalValue": 2288100}, {"date": "2026-06-24", "dailyChange": 17790, "totalValue": 2305890}, {"date": "2026-06-25", "dailyChange": 13005, "totalValue": 2318895}, {"date": "2026-07-03", "dailyChange": -15796, "totalValue": 2338074}, {"date": "2026-07-06", "dailyChange": -4960, "totalValue": 2339359}, {"date": "2026-07-07", "dailyChange": -61576, "totalValue": 2275082}, {"date": "2026-07-08", "dailyChange": 22995, "totalValue": 2295436}, {"date": "2026-07-09", "dailyChange": 3113, "totalValue": 2285225}, {"date": "2026-07-10", "dailyChange": -12647, "totalValue": 2269466}, {"date": "2026-07-13", "dailyChange": -25847, "totalValue": 2243618}, {"date": "2026-07-14", "dailyChange": -43159, "totalValue": 2078131}, {"date": "2026-07-15", "dailyChange": 39407, "totalValue": 2127203}, {"date": "2026-07-16", "dailyChange": -135, "totalValue": 2124585}];
   function roundTrendValue(v) { return Math.round(Number(v) || 0); }
   function money(n) { const v = Number(n) || 0; return `${v < 0 ? '-' : ''}${Math.abs(Math.round(v)).toLocaleString('zh-TW')}`; }
   function signedMoney(n) { const v = Number(n) || 0; return `${v >= 0 ? '+' : '-'}${Math.abs(Math.round(v)).toLocaleString('zh-TW')}`; }
