@@ -153,5 +153,10 @@
     "date": "2026-08-03",
     "dailyChange": 3872,
     "totalValue": 2001355
+  },
+  {
+    "date": "2026-08-04",
+    "dailyChange": -8501,
+    "totalValue": 1993043
   }
 ]
